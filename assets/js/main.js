@@ -1,27 +1,36 @@
-function convertPokemonTypesToLi(pokemonTypes){
-    return pokemonTypes.map((type) => `<li class="type">${type.type.name}</li>`);
-}
-
-function pokemonToHtml(pokemon){
-    return `
-    <li class="pokemon">
-        <span class="number">${pokemon.order}</span>
-        <span class="name">${pokemon.name}</span>
-
-        <div class="detail">
-            <ol class="types">
-                ${convertPokemonTypesToLi(pokemon.types).join("")}
-            </ol>
-            <img src="${pokemon.sprites.other.dream_world.front_default}" alt="${pokemon.name}">
-        </div> 
-    </li>`;
-}
-
 const lista = document.querySelector(".pokemons");
 
-pokeApi.getPokemons(0, 10).then((pokemons = []) => {
-    lista.innerHTML += pokemons.map(pokemonToHtml).join("");
-})
+const loadMoreButton = document.getElementById("loadMoreButton");
+
+const limit = 5;
+
+let offset = 0;
+
+function renderPokemons(offset, limit){
+
+    pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
+        const newHtml = pokemons.map(pokemon => `
+        <li class="pokemon ${pokemon.mainType}">
+            <span class="number">#${pokemon.number}</span>
+            <span class="name">${pokemon.name}</span>
+    
+            <div class="detail">
+                <ol class="types">
+                    ${pokemon.types.map((type) => `<li class="type ${type}">${type}</li>`).join("")}
+                </ol>
+                <img src="${pokemon.image}" alt="${pokemon.name}">
+            </div> 
+        </li>`).join("");
+        lista.innerHTML += newHtml;
+    })
+}
+
+renderPokemons(offset, limit);
+
+loadMoreButton.addEventListener("click", () => {
+    offset += limit;
+    renderPokemons(offset, limit);
+});
 
 
  
